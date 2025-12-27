@@ -1,0 +1,710 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Симулятор iPhone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .iphone-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+        }
+        
+        /* Стили для iPhone */
+        .iphone {
+            width: 320px;
+            height: 640px;
+            background-color: #111;
+            border-radius: 40px;
+            position: relative;
+            box-shadow: 
+                0 0 0 10px #1a1a1a,
+                0 10px 50px rgba(0, 0, 0, 0.8),
+                inset 0 0 20px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+        
+        .iphone-top {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 25px;
+            background-color: #1a1a1a;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            z-index: 10;
+        }
+        
+        .iphone-notch {
+            width: 100%;
+            height: 25px;
+            background-color: #000;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+        
+        .speaker {
+            width: 60px;
+            height: 6px;
+            background-color: #333;
+            border-radius: 3px;
+        }
+        
+        .camera {
+            width: 10px;
+            height: 10px;
+            background-color: #333;
+            border-radius: 50%;
+        }
+        
+        .iphone-screen {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+            padding: 40px 15px 80px 15px;
+        }
+        
+        .iphone-button {
+            position: absolute;
+            left: -5px;
+            top: 120px;
+            width: 5px;
+            height: 40px;
+            background-color: #1a1a1a;
+            border-radius: 5px 0 0 5px;
+        }
+        
+        .iphone-button.right {
+            left: auto;
+            right: -5px;
+            top: 200px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        /* Экран блокировки */
+        .lock-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 50px 20px 30px 20px;
+            transition: transform 0.5s ease;
+        }
+        
+        .lock-screen.hidden {
+            transform: translateY(-100%);
+        }
+        
+        .time {
+            font-size: 50px;
+            font-weight: 300;
+            margin-top: 40px;
+        }
+        
+        .date {
+            font-size: 18px;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .unlock-hint {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .unlock-hint i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        /* Главный экран */
+        .home-screen {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            background-image: url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            background-position: center;
+            padding-top: 40px;
+            transform: translateY(100%);
+            transition: transform 0.5s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .home-screen.active {
+            transform: translateY(0);
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 15px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-left, .status-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 15px;
+            padding: 20px 15px;
+            height: calc(100% - 100px);
+        }
+        
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border-radius: 15px;
+            padding: 10px 0;
+        }
+        
+        .app-icon:hover {
+            transform: scale(1.1);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .app-icon i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .app-icon span {
+            font-size: 10px;
+            text-align: center;
+        }
+        
+        .dock {
+            position: absolute;
+            bottom: 10px;
+            left: 15px;
+            right: 15px;
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        
+        /* Окно приложения */
+        .app-window {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            border-radius: 32px;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+            z-index: 20;
+            overflow: hidden;
+        }
+        
+        .app-window.active {
+            transform: translateY(0);
+        }
+        
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .app-title {
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .app-content {
+            padding: 20px;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+        }
+        
+        .close-app {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #007AFF;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Панель управления */
+        .controls {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+        
+        .controls h2 {
+            color: white;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .instructions {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.5;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .iphone-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .controls {
+                width: 100%;
+                max-width: 320px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <h1>Симулятор iPhone</h1>
+            <p class="subtitle">Интерактивная модель iPhone с приложениями. Нажмите на экран, чтобы разблокировать.</p>
+        </div>
+        
+        <div class="iphone-container">
+            <div class="iphone">
+                <div class="iphone-top">
+                    <div class="iphone-notch">
+                        <div class="speaker"></div>
+                        <div class="camera"></div>
+                    </div>
+                </div>
+                
+                <div class="iphone-button"></div>
+                <div class="iphone-button right"></div>
+                
+                <div class="iphone-screen">
+                    <!-- Экран блокировки -->
+                    <div class="lock-screen" id="lockScreen">
+                        <div class="status-bar">
+                            <div class="status-left">
+                                <span id="lockTime">9:41</span>
+                            </div>
+                            <div class="status-right">
+                                <i class="fas fa-signal"></i>
+                                <i class="fas fa-wifi"></i>
+                                <i class="fas fa-battery-full"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="time-container">
+                            <div class="time" id="currentTime">9:41</div>
+                            <div class="date" id="currentDate">Пятница, 2 июня</div>
+                        </div>
+                        
+                        <div class="unlock-hint">
+                            <i class="fas fa-chevron-up"></i>
+                            <span>Нажмите для разблокировки</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Главный экран -->
+                    <div class="home-screen" id="homeScreen">
+                        <div class="status-bar">
+                            <div class="status-left">
+                                <span>9:41</span>
+                            </div>
+                            <div class="status-right">
+                                <i class="fas fa-signal"></i>
+                                <i class="fas fa-wifi"></i>
+                                <i class="fas fa-battery-full"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="app-grid">
+                            <!-- Приложения будут добавлены через JS -->
+                        </div>
+                        
+                        <div class="dock">
+                            <!-- Док приложения -->
+                        </div>
+                    </div>
+                    
+                    <!-- Окна приложений -->
+                    <div class="app-window" id="phoneApp">
+                        <div class="app-header">
+                            <button class="close-app" onclick="closeApp('phoneApp')">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="app-title">Контакты</div>
+                            <div style="width: 30px;"></div>
+                        </div>
+                        <div class="app-content">
+                            <h3>Избранное</h3>
+                            <ul style="margin-top: 15px; list-style: none;">
+                                <li style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                                    <i class="fas fa-user-circle" style="font-size: 24px; margin-right: 10px; color: #007AFF;"></i>
+                                    <div>
+                                        <div style="font-weight: 600;">Мама</div>
+                                        <div style="font-size: 14px; color: #666;">мобильный</div>
+                                    </div>
+                                </li>
+                                <li style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                                    <i class="fas fa-user-circle" style="font-size: 24px; margin-right: 10px; color: #34C759;"></i>
+                                    <div>
+                                        <div style="font-weight: 600;">Папа</div>
+                                        <div style="font-size: 14px; color: #666;">рабочий</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="app-window" id="messagesApp">
+                        <div class="app-header">
+                            <button class="close-app" onclick="closeApp('messagesApp')">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="app-title">Сообщения</div>
+                            <div style="width: 30px;"></div>
+                        </div>
+                        <div class="app-content">
+                            <div style="background-color: #007AFF; color: white; padding: 10px; border-radius: 10px; max-width: 80%; margin-bottom: 10px; align-self: flex-end; margin-left: auto;">
+                                Привет! Как дела?
+                            </div>
+                            <div style="background-color: #E5E5EA; color: black; padding: 10px; border-radius: 10px; max-width: 80%; margin-bottom: 10px;">
+                                Всё отлично, спасибо! А у тебя?
+                            </div>
+                            <div style="background-color: #007AFF; color: white; padding: 10px; border-radius: 10px; max-width: 80%; margin-bottom: 10px; align-self: flex-end; margin-left: auto;">
+                                                Отлично! Готов к работе над проектом.
+                                            </div>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="app-window" id="safariApp">
+                                        <div class="app-header">
+                                            <button class="close-app" onclick="closeApp('safariApp')">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </button>
+                                            <div class="app-title">Safari</div>
+                                            <div style="width: 30px;"></div>
+                                        </div>
+                                        <div class="app-content">
+                                            <div style="margin-bottom: 15px; padding: 10px; background-color: #f5f5f5; border-radius: 10px;">
+                                                <input type="text" placeholder="Поиск или введите адрес" style="width: 100%; padding: 8px; border: none; border-radius: 5px; font-size: 14px;">
+                                            </div>
+                                            <h3>Часто посещаемые</h3>
+                                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px;">
+                                                <div style="background-color: #f0f0f0; border-radius: 10px; padding: 15px; text-align: center;">
+                                                    <i class="fab fa-google" style="font-size: 24px; color: #4285F4; margin-bottom: 5px;"></i>
+                                                    <div style="font-size: 12px;">Google</div>
+                                                </div>
+                                                <div style="background-color: #f0f0f0; border-radius: 10px; padding: 15px; text-align: center;">
+                                                    <i class="fab fa-youtube" style="font-size: 24px; color: #FF0000; margin-bottom: 5px;"></i>
+                                                    <div style="font-size: 12px;">YouTube</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="app-window" id="photosApp">
+                                        <div class="app-header">
+                                            <button class="close-app" onclick="closeApp('photosApp')">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </button>
+                                            <div class="app-title">Фото</div>
+                                            <div style="width: 30px;"></div>
+                                        </div>
+                                        <div class="app-content">
+                                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
+                                                <div style="background-color: #FFD700; height: 80px; border-radius: 5px;"></div>
+                                                <div style="background-color: #FF6347; height: 80px; border-radius: 5px;"></div>
+                                                <div style="background-color: #7B68EE; height: 80px; border-radius: 5px;"></div>
+                                                <div style="background-color: #20B2AA; height: 80px; border-radius: 5px;"></div>
+                                                <div style="background-color: #FF69B4; height: 80px; border-radius: 5px;"></div>
+                                                <div style="background-color: #32CD32; height: 80px; border-radius: 5px;"></div>
+                                            </div>
+                                            <h3 style="margin-top: 20px;">Альбомы</h3>
+                                            <div style="margin-top: 10px;">
+                                                <div style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
+                                                    <i class="fas fa-heart" style="color: #FF3B30; margin-right: 10px;"></i>
+                                                    <div>Избранное</div>
+                                                </div>
+                                                <div style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
+                                                    <i class="fas fa-camera" style="color: #34C759; margin-right: 10px;"></i>
+                                                    <div>Недавние</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="controls">
+                            <h2>Управление симулятором</h2>
+                            <div class="buttons">
+                                <button onclick="unlockPhone()">
+                                    <i class="fas fa-unlock"></i> Разблокировать
+                                </button>
+                                <button onclick="lockPhone()">
+                                    <i class="fas fa-lock"></i> Заблокировать
+                                </button>
+                                <button onclick="openApp('phoneApp')">
+                                    <i class="fas fa-phone"></i> Телефон
+                                </button>
+                                <button onclick="openApp('messagesApp')">
+                                    <i class="fas fa-comment"></i> Сообщения
+                                </button>
+                                <button onclick="openApp('safariApp')">
+                                    <i class="fab fa-safari"></i> Safari
+                                </button>
+                                <button onclick="openApp('photosApp')">
+                                    <i class="fas fa-images"></i> Фото
+                                </button>
+                            </div>
+                            <div class="instructions">
+                                <p><strong>Инструкция:</strong> Нажмите на экран блокировки, чтобы разблокировать iPhone. На домашнем экране нажмите на иконку приложения, чтобы открыть его. Для возврата на домашний экран нажмите на кнопку в верхней части приложения.</p>
+                                <p>Также вы можете использовать кнопки управления выше.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        // Инициализация времени
+                        function updateTime() {
+                            const now = new Date();
+                            const timeString = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                            const dateString = now.toLocaleDateString('ru-RU', { 
+                                weekday: 'long', 
+                                day: 'numeric', 
+                                month: 'long' 
+                            });
+                            
+                            // Обновляем время на экране блокировки
+                            document.getElementById('currentTime').textContent = timeString;
+                            document.getElementById('lockTime').textContent = timeString;
+                            document.getElementById('currentDate').textContent = dateString;
+                            
+                            // Обновляем время на домашнем экране
+                            const homeScreenTime = document.querySelector('#homeScreen .status-left span');
+                            if (homeScreenTime) {
+                                homeScreenTime.textContent = timeString;
+                            }
+                        }
+                        
+                        // Обновляем время каждую секунду
+                        setInterval(updateTime, 1000);
+                        updateTime(); // Инициализируем сразу
+                        
+                        // Создаем приложения на домашнем экране
+                        const apps = [
+                            { name: 'Телефон', icon: 'fas fa-phone', appId: 'phoneApp' },
+                            { name: 'Сообщения', icon: 'fas fa-comment', appId: 'messagesApp' },
+                            { name: 'Safari', icon: 'fab fa-safari', appId: 'safariApp' },
+                            { name: 'Музыка', icon: 'fas fa-music', appId: null },
+                            { name: 'Фото', icon: 'fas fa-images', appId: 'photosApp' },
+                            { name: 'Камера', icon: 'fas fa-camera', appId: null },
+                            { name: 'Карты', icon: 'fas fa-map', appId: null },
+                            { name: 'Погода', icon: 'fas fa-cloud-sun', appId: null },
+                            { name: 'Календарь', icon: 'fas fa-calendar', appId: null },
+                            { name: 'Заметки', icon: 'fas fa-sticky-note', appId: null },
+                            { name: 'Настройки', icon: 'fas fa-cog', appId: null },
+                            { name: 'App Store', icon: 'fas fa-shopping-bag', appId: null }
+                        ];
+                        
+                        // Создаем иконки приложений
+                        const appGrid = document.querySelector('.app-grid');
+                        apps.forEach(app => {
+                            const appIcon = document.createElement('div');
+                            appIcon.className = 'app-icon';
+                            appIcon.innerHTML = `
+                                <i class="${app.icon}"></i>
+                                <span>${app.name}</span>
+                            `;
+                            
+                            if (app.appId) {
+                                appIcon.addEventListener('click', () => openApp(app.appId));
+                            } else {
+                                appIcon.addEventListener('click', () => {
+                                    alert(`Приложение "${app.name}" находится в разработке.`);
+                                });
+                            }
+                            
+                            appGrid.appendChild(appIcon);
+                        });
+                        
+                        // Создаем док приложений
+                        const dockApps = [
+                            { name: 'Телефон', icon: 'fas fa-phone', appId: 'phoneApp' },
+                            { name: 'Safari', icon: 'fab fa-safari', appId: 'safariApp' },
+                            { name: 'Сообщения', icon: 'fas fa-comment', appId: 'messagesApp' },
+                            { name: 'Музыка', icon: 'fas fa-music', appId: null }
+                        ];
+                        
+                        const dock = document.querySelector('.dock');
+                        dockApps.forEach(app => {
+                            const dockIcon = document.createElement('div');
+                            dockIcon.className = 'app-icon';
+                            dockIcon.innerHTML = `
+                                <i class="${app.icon}"></i>
+                            `;
+                            
+                            if (app.appId) {
+                                dockIcon.addEventListener('click', () => openApp(app.appId));
+                            } else {
+                                dockIcon.addEventListener('click', () => {
+                                    alert(`Приложение "${app.name}" находится в разработке.`);
+                                });
+                            }
+                            
+                            dock.appendChild(dockIcon);
+                        });
+                        
+                        // Функции управления iPhone
+                        function unlockPhone() {
+                            document.getElementById('lockScreen').classList.add('hidden');
+                            document.getElementById('homeScreen').classList.add('active');
+                        }
+                        
+                        function lockPhone() {
+                            document.getElementById('lockScreen').classList.remove('hidden');
+                            document.getElementById('homeScreen').classList.remove('active');
+                            
+                            // Закрываем все открытые приложения
+                            document.querySelectorAll('.app-window.active').forEach(app => {
+                                app.classList.remove('active');
+                            });
+                        }
+                        
+                        function openApp(appId) {
+                            // Активируем домашний экран если он не активен
+                            if (!document.getElementById('homeScreen').classList.contains('active')) {
+                                unlockPhone();
+                            }
+                            
+                            // Открываем приложение
+                            document.getElementById(appId).classList.add('active');
+                        }
+                        
+                        function closeApp(appId) {
+                            document.getElementById(appId).classList.remove('active');
+                        }
+                        
+                        // Разблокировка по клику на экран блокировки
+                        document.getElementById('lockScreen').addEventListener('click', unlockPhone);
+                        
+                        // Блокировка по клику на статус бар домашнего экрана
+                        document.querySelector('#homeScreen .status-bar').addEventListener('click', lockPhone);
+                    </script>
+                </body>
+                </html>
